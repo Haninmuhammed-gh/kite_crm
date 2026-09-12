@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -524,6 +525,21 @@ void main() {
       expect(
         evaluateRedirect(isAuthenticated: true, matchedLocation: '/reset-password'),
         isNull,
+      );
+    });
+  });
+
+  group('Dynamic Redirect URL Tests', () {
+    test('Redirect URL matches expected URL for environment mode', () {
+      const expectedUrl = kReleaseMode
+          ? 'https://kite-crm.vercel.app/#/reset-password'
+          : 'http://localhost:3000/#/reset-password';
+
+      expect(
+        kReleaseMode
+            ? 'https://kite-crm.vercel.app/#/reset-password'
+            : 'http://localhost:3000/#/reset-password',
+        equals(expectedUrl),
       );
     });
   });

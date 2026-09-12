@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../data/auth_repository.dart';
 import '../../domain/user_profile.dart';
 
@@ -68,20 +70,22 @@ class AuthController extends Notifier<AsyncValue<void>> {
     });
   }
 
-  Future<void> signUp({
+  Future<AuthResponse?> signUp({
     required String email,
     required String password,
     required String fullName,
   }) async {
     state = const AsyncValue.loading();
+    AuthResponse? res;
     state = await AsyncValue.guard(() async {
-      await ref.read(authRepositoryProvider).signUp(
+      res = await ref.read(authRepositoryProvider).signUp(
             email: email,
             password: password,
             fullName: fullName,
           );
       ref.invalidate(currentUserProfileProvider);
     });
+    return res;
   }
 
   Future<void> signOut() async {
@@ -112,7 +116,9 @@ class AuthController extends Notifier<AsyncValue<void>> {
     state = await AsyncValue.guard(() async {
       await ref.read(authRepositoryProvider).resetPasswordForEmail(
             email.trim(),
-            redirectTo: 'http://localhost:3000/#/reset-password',
+            redirectTo: kReleaseMode
+                ? 'https://kite-crm.vercel.app/#/reset-password'
+                : 'http://localhost:3000/#/reset-password',
           );
     });
   }

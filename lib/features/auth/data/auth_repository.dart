@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../domain/user_profile.dart';
@@ -56,13 +57,18 @@ class AuthRepository {
     required String password,
     required String fullName,
   }) async {
-    return await _supabase!.auth.signUp(
+    final client = _supabase;
+    if (client == null) {
+      throw const AuthException('Supabase client is not initialized');
+    }
+    final res = await client.auth.signUp(
       email: email,
       password: password,
       data: {
         'full_name': fullName,
       },
     );
+    return res;
   }
 
   Future<void> signOut() async {
@@ -77,7 +83,10 @@ class AuthRepository {
     if (client == null) return;
     await client.auth.resetPasswordForEmail(
       email.trim(),
-      redirectTo: redirectTo ?? 'http://localhost:3000/#/reset-password',
+      redirectTo: redirectTo ??
+          (kReleaseMode
+              ? 'https://kite-crm.vercel.app/#/reset-password'
+              : 'http://localhost:3000/#/reset-password'),
     );
   }
 
