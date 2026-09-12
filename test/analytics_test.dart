@@ -211,6 +211,51 @@ void main() {
       expect(find.text('Won'), findsOneWidget);
     });
 
+    testWidgets(
+        'PipelineBarChart rotates labels, abbreviates Negotiation to Negot. and reduces font size on mobile viewport',
+        (tester) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final mobileDeals = [
+        const Deal(id: '1', title: 'Tech Stack', value: 50000, stage: 'negotiation'),
+        const Deal(id: '2', title: 'Security Audit', value: 30000, stage: 'lead'),
+      ];
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            dealsControllerProvider.overrideWith(
+              () => _MockDealsController(mobileDeals),
+            ),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              body: PipelineBarChart(),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Negot.'), findsOneWidget);
+      expect(find.text('Negotiation'), findsNothing);
+      expect(find.text('Lead'), findsOneWidget);
+
+      // Verify rotation angle is -45 degrees on mobile
+      final sideTitleWidgets =
+          tester.widgetList<SideTitleWidget>(find.byType(SideTitleWidget));
+      expect(
+        sideTitleWidgets.any(
+            (w) => (w.angle - (-45 * (3.141592653589793 / 180))).abs() < 0.001),
+        isTrue,
+      );
+
+      // Verify no exceptions / overflow
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('PipelineBarChart renders empty state when no deals exist',
         (tester) async {
       await tester.pumpWidget(

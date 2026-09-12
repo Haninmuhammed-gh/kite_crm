@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,6 +36,7 @@ class _PipelineBarChartState extends ConsumerState<PipelineBarChart> {
   Widget build(BuildContext context) {
     final stageDataAsync = ref.watch(dealsByStageChartProvider);
     final currencyFormatter = NumberFormat.simpleCurrency(decimalDigits: 0);
+    final isMobile = MediaQuery.sizeOf(context).width < 800;
 
     return stageDataAsync.when(
       loading: () => _wrapCard(
@@ -117,7 +119,7 @@ class _PipelineBarChartState extends ConsumerState<PipelineBarChart> {
                 color: isTouched
                     ? item.color.withValues(alpha: 0.85)
                     : item.color,
-                width: 26,
+                width: isMobile ? 22 : 26,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(6),
                 ),
@@ -222,20 +224,28 @@ class _PipelineBarChartState extends ConsumerState<PipelineBarChart> {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 32,
+                      reservedSize: isMobile ? 48 : 32,
                       getTitlesWidget: (value, meta) {
                         final idx = value.toInt();
                         if (idx < 0 || idx >= stages.length) {
                           return const SizedBox.shrink();
                         }
                         final item = stages[idx];
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
+                        final String label = (isMobile &&
+                                (item.stageKey == 'negotiation' ||
+                                    item.stageLabel.toLowerCase() == 'negotiation'))
+                            ? 'Negot.'
+                            : item.stageLabel;
+
+                        return SideTitleWidget(
+                          meta: meta,
+                          angle: isMobile ? -45 * (math.pi / 180) : 0.0,
+                          space: isMobile ? 4.0 : 8.0,
                           child: Text(
-                            item.stageLabel,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF475569),
+                            label,
+                            style: TextStyle(
+                              fontSize: isMobile ? 10.0 : 12.0,
+                              color: const Color(0xFF475569),
                               fontWeight: FontWeight.w600,
                             ),
                           ),

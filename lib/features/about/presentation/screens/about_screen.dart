@@ -152,7 +152,11 @@ class AboutScreen extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
+                                    Wrap(
+                                      spacing: 12,
+                                      runSpacing: 6,
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
                                       children: [
                                         const Text(
                                           'Kite CRM',
@@ -163,7 +167,6 @@ class AboutScreen extends StatelessWidget {
                                             letterSpacing: -0.3,
                                           ),
                                         ),
-                                        const SizedBox(width: 12),
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 10,
@@ -203,20 +206,20 @@ class AboutScreen extends StatelessWidget {
                             ],
                           ),
                           const Divider(height: 32),
-                          Row(
+                          Wrap(
+                            spacing: 8.0,
+                            runSpacing: 8.0,
                             children: [
                               _buildInfoPill(
                                 icon: Icons.bolt_rounded,
                                 label: 'Fast & Reactive',
                                 color: const Color(0xFF0F766E),
                               ),
-                              const SizedBox(width: 10),
                               _buildInfoPill(
                                 icon: Icons.security_rounded,
                                 label: 'Role-Based Access',
                                 color: const Color(0xFF0284C7),
                               ),
-                              const SizedBox(width: 10),
                               _buildInfoPill(
                                 icon: Icons.sync_rounded,
                                 label: 'Real-time Sync',

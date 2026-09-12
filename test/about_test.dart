@@ -74,5 +74,31 @@ void main() {
       await tester.pumpAndSettle();
       // No unhandled exception should occur
     });
+
+    testWidgets('Renders feature chips inside Wrap with correct spacing on mobile viewport without overflow',
+        (tester) async {
+      tester.view.physicalSize = const Size(375, 667);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: AboutScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final wrapFinder = find.byWidgetPredicate(
+        (widget) =>
+            widget is Wrap && widget.spacing == 8.0 && widget.runSpacing == 8.0,
+      );
+      expect(wrapFinder, findsWidgets);
+
+      expect(find.text('Fast & Reactive'), findsOneWidget);
+      expect(find.text('Role-Based Access'), findsOneWidget);
+      expect(find.text('Real-time Sync'), findsOneWidget);
+
+      expect(tester.takeException(), isNull);
+    });
   });
 }
