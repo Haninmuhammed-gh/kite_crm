@@ -9,11 +9,13 @@ class CrmSidebar extends ConsumerStatefulWidget {
     this.currentLocation,
     this.initialCollapsed = false,
     this.onCollapseChanged,
+    this.isDrawer = false,
   });
 
   final String? currentLocation;
   final bool initialCollapsed;
   final ValueChanged<bool>? onCollapseChanged;
+  final bool isDrawer;
 
   @override
   ConsumerState<CrmSidebar> createState() => _CrmSidebarState();
@@ -148,8 +150,8 @@ class _CrmSidebarState extends ConsumerState<CrmSidebar> {
     final isSmallScreen = screenWidth < 800;
 
     final currentPath = _resolveCurrentPath(context);
-    final isCollapsed = isSmallScreen || _isCollapsed;
-    final width = isCollapsed ? 72.0 : 240.0;
+    final isCollapsed = !widget.isDrawer && (isSmallScreen || _isCollapsed);
+    final width = widget.isDrawer ? 280.0 : (isCollapsed ? 72.0 : 240.0);
     final isAdmin = ref.watch(isAdminProvider);
 
     final navItems = [
@@ -164,7 +166,7 @@ class _CrmSidebarState extends ConsumerState<CrmSidebar> {
       ..._navItems.skip(8), // About
     ];
 
-    return AnimatedContainer(
+    final sidebarContent = AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
       width: width,
@@ -184,7 +186,7 @@ class _CrmSidebarState extends ConsumerState<CrmSidebar> {
               child: isCollapsed
                   ? Center(
                       child: Visibility(
-                        visible: !isSmallScreen,
+                        visible: !isSmallScreen && !widget.isDrawer,
                         child: IconButton(
                           tooltip: 'Expand sidebar',
                           icon: const Icon(
@@ -200,7 +202,7 @@ class _CrmSidebarState extends ConsumerState<CrmSidebar> {
                       scrollDirection: Axis.horizontal,
                       physics: const NeverScrollableScrollPhysics(),
                       child: SizedBox(
-                        width: 216,
+                        width: widget.isDrawer ? 256 : 216,
                         child: Row(
                           children: [
                             const Icon(
@@ -221,18 +223,29 @@ class _CrmSidebarState extends ConsumerState<CrmSidebar> {
                                 ),
                               ),
                             ),
-                            Visibility(
-                              visible: !isSmallScreen,
-                              child: IconButton(
-                                tooltip: 'Collapse sidebar',
+                            if (widget.isDrawer)
+                              IconButton(
+                                tooltip: 'Close menu',
                                 icon: const Icon(
-                                  Icons.chevron_left_rounded,
+                                  Icons.close_rounded,
                                   color: slateMuted,
                                   size: 22,
                                 ),
-                                onPressed: _toggleCollapsed,
+                                onPressed: () => Navigator.of(context).maybePop(),
+                              )
+                            else
+                              Visibility(
+                                visible: !isSmallScreen,
+                                child: IconButton(
+                                  tooltip: 'Collapse sidebar',
+                                  icon: const Icon(
+                                    Icons.chevron_left_rounded,
+                                    color: slateMuted,
+                                    size: 22,
+                                  ),
+                                  onPressed: _toggleCollapsed,
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ),
@@ -257,7 +270,12 @@ class _CrmSidebarState extends ConsumerState<CrmSidebar> {
                         preferBelow: false,
                         waitDuration: const Duration(milliseconds: 300),
                         child: InkWell(
-                          onTap: () => context.go(item.route),
+                          onTap: () {
+                            if (widget.isDrawer) {
+                              Navigator.of(context).maybePop();
+                            }
+                            context.go(item.route);
+                          },
                           borderRadius: BorderRadius.circular(12),
                           child: Container(
                             height: 44,
@@ -287,7 +305,12 @@ class _CrmSidebarState extends ConsumerState<CrmSidebar> {
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
                       child: InkWell(
-                        onTap: () => context.go(item.route),
+                        onTap: () {
+                          if (widget.isDrawer) {
+                            Navigator.of(context).maybePop();
+                          }
+                          context.go(item.route);
+                        },
                         borderRadius: BorderRadius.circular(12),
                         hoverColor: const Color(0xFFF8FAFC),
                         child: Padding(
@@ -417,6 +440,17 @@ class _CrmSidebarState extends ConsumerState<CrmSidebar> {
         ),
       ),
     );
+
+    if (widget.isDrawer) {
+      return Drawer(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        width: 280.0,
+        child: sidebarContent,
+      );
+    }
+
+    return sidebarContent;
   }
 }
 

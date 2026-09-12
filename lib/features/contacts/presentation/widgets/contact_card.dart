@@ -75,6 +75,8 @@ class ContactCard extends ConsumerWidget {
                     children: [
                       Text(
                         contact.fullName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -93,12 +95,13 @@ class ContactCard extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               contact.companyName ?? 'Independent',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey.shade600,
                                 fontWeight: FontWeight.w500,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -216,11 +219,16 @@ class ContactCard extends ConsumerWidget {
                         Icon(Icons.mail_outline_rounded,
                             size: 14, color: Colors.grey.shade500),
                         const SizedBox(width: 6),
-                        Text(
-                          contact.email!,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            color: Colors.grey.shade700,
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 200),
+                          child: Text(
+                            contact.email!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: Colors.grey.shade700,
+                            ),
                           ),
                         ),
                       ],
@@ -232,11 +240,16 @@ class ContactCard extends ConsumerWidget {
                         Icon(Icons.phone_outlined,
                             size: 14, color: Colors.grey.shade500),
                         const SizedBox(width: 6),
-                        Text(
-                          contact.phone!,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            color: Colors.grey.shade700,
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 160),
+                          child: Text(
+                            contact.phone!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: Colors.grey.shade700,
+                            ),
                           ),
                         ),
                       ],

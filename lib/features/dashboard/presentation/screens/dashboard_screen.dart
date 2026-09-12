@@ -105,6 +105,8 @@ class DashboardScreen extends ConsumerWidget {
                         userName != null && userName.isNotEmpty
                             ? 'Welcome to Kite CRM, $userName!'
                             : 'Welcome to Kite CRM',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 26,
@@ -114,6 +116,8 @@ class DashboardScreen extends ConsumerWidget {
                       const SizedBox(height: 8),
                       Text(
                         'Logged in as $userEmail',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 15,
@@ -131,15 +135,18 @@ class DashboardScreen extends ConsumerWidget {
                 // Metrics / Live CRM Stats Grid
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    final isNarrow = constraints.maxWidth < 600;
-                    return Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
+                    final isMobile = constraints.maxWidth < 600;
+                    return GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: isMobile ? 1 : 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: isMobile
+                          ? (constraints.maxWidth / 96).clamp(1.0, 10.0)
+                          : ((constraints.maxWidth - 16) / 2 / 96).clamp(1.0, 10.0),
                       children: [
                         _StatCard(
-                          width: isNarrow
-                              ? constraints.maxWidth
-                              : (constraints.maxWidth - 16) / 2,
                           title: 'Active Leads',
                           value: '${metrics.activeLeads}',
                           icon: Icons.people_outline_rounded,
@@ -148,9 +155,6 @@ class DashboardScreen extends ConsumerWidget {
                           onTap: () => context.push('/contacts'),
                         ),
                         _StatCard(
-                          width: isNarrow
-                              ? constraints.maxWidth
-                              : (constraints.maxWidth - 16) / 2,
                           title: 'Pipeline Value',
                           value: currencyFormatter.format(metrics.pipelineValue),
                           icon: Icons.attach_money_rounded,
@@ -159,9 +163,6 @@ class DashboardScreen extends ConsumerWidget {
                           onTap: () => context.push('/deals'),
                         ),
                         _StatCard(
-                          width: isNarrow
-                              ? constraints.maxWidth
-                              : (constraints.maxWidth - 16) / 2,
                           title: 'Won Deals',
                           value: '${metrics.wonDeals}',
                           icon: Icons.verified_outlined,
@@ -170,9 +171,6 @@ class DashboardScreen extends ConsumerWidget {
                           onTap: () => context.push('/deals'),
                         ),
                         _StatCard(
-                          width: isNarrow
-                              ? constraints.maxWidth
-                              : (constraints.maxWidth - 16) / 2,
                           title: 'Conversion Rate',
                           value: '${metrics.conversionRate.toStringAsFixed(1)}%',
                           icon: Icons.trending_up_rounded,
@@ -202,16 +200,16 @@ class DashboardScreen extends ConsumerWidget {
 
 class _StatCard extends StatelessWidget {
   const _StatCard({
-    required this.width,
     required this.title,
     required this.value,
     required this.icon,
     required this.accentColor,
+    this.width,
     this.onTap,
     this.isLoading = false,
   });
 
-  final double width;
+  final double? width;
   final String title;
   final String value;
   final IconData icon;
@@ -244,9 +242,12 @@ class _StatCard extends StatelessWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey.shade600,
@@ -263,12 +264,13 @@ class _StatCard extends StatelessWidget {
                   else
                     Text(
                       value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF0F172A),
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
                 ],
               ),
@@ -281,15 +283,17 @@ class _StatCard extends StatelessWidget {
       ),
     );
 
-    return SizedBox(
-      width: width,
-      child: onTap != null
-          ? InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(16),
-              child: cardWidget,
-            )
-          : cardWidget,
-    );
+    final item = onTap != null
+        ? InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(16),
+            child: cardWidget,
+          )
+        : cardWidget;
+
+    if (width != null) {
+      return SizedBox(width: width, child: item);
+    }
+    return item;
   }
 }

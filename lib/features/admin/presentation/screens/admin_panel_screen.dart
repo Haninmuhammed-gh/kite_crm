@@ -154,9 +154,12 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
                       LayoutBuilder(
                         builder: (context, constraints) {
                           final isWide = constraints.maxWidth > 700;
+                          final isMedium = constraints.maxWidth > 480;
                           final cardWidth = isWide
                               ? (constraints.maxWidth - 36) / 4
-                              : (constraints.maxWidth - 12) / 2;
+                              : isMedium
+                                  ? (constraints.maxWidth - 12) / 2
+                                  : constraints.maxWidth;
 
                           return Wrap(
                             spacing: 12,
@@ -398,6 +401,8 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
               ),
               Text(
                 value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -409,6 +414,8 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> {
           const SizedBox(height: 12),
           Text(
             title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,

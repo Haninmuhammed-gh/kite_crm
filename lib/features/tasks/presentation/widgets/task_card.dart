@@ -130,6 +130,8 @@ class TaskCard extends ConsumerWidget {
                     children: [
                       Text(
                         task.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 15.5,
                           fontWeight: FontWeight.bold,
@@ -257,12 +259,17 @@ class TaskCard extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        task.displayContactName!,
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          color: Color(0xFF334155),
-                          fontWeight: FontWeight.w500,
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 160),
+                        child: Text(
+                          task.displayContactName!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            color: Color(0xFF334155),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
@@ -276,6 +283,8 @@ class TaskCard extends ConsumerWidget {
                       const SizedBox(width: 4),
                       Text(
                         'Contact ID: ${task.contactId.length > 8 ? '${task.contactId.substring(0, 8)}...' : task.contactId}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade500,
@@ -303,6 +312,8 @@ class TaskCard extends ConsumerWidget {
                         const SizedBox(width: 4),
                         Text(
                           dueDateText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,

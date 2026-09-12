@@ -31,55 +31,118 @@ class MainLayout extends ConsumerWidget {
       bindings: shortcuts,
       child: Focus(
         autofocus: true,
-        child: Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
-          appBar: AppBar(
-            toolbarHeight: 56,
-            backgroundColor: Colors.white,
-            elevation: 0,
-            surfaceTintColor: Colors.transparent,
-            automaticallyImplyLeading: false,
-            title: const Row(
-              children: [
-                Icon(
-                  Icons.flight_takeoff_rounded,
-                  color: primaryTeal,
-                  size: 24,
-                ),
-                SizedBox(width: 8),
-                Text(
-                  'Kite CRM',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: slateDark,
-                    letterSpacing: -0.3,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isDesktop = constraints.maxWidth >= 800;
+
+            if (isDesktop) {
+              // 1. Desktop/Tablet (maxWidth >= 800): Keep existing permanent sidebar behavior
+              return Scaffold(
+                backgroundColor: const Color(0xFFF8FAFC),
+                appBar: AppBar(
+                  toolbarHeight: 56,
+                  backgroundColor: Colors.white,
+                  elevation: 0,
+                  surfaceTintColor: Colors.transparent,
+                  automaticallyImplyLeading: false,
+                  title: const Row(
+                    children: [
+                      Icon(
+                        Icons.flight_takeoff_rounded,
+                        color: primaryTeal,
+                        size: 24,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Kite CRM',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: slateDark,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    _GlobalSearchButton(
+                      onPressed: () => GlobalSearchDialog.show(context),
+                    ),
+                    const SizedBox(width: 8),
+                    const Padding(
+                      padding: EdgeInsets.only(right: 12.0),
+                      child: UserAvatarButton(),
+                    ),
+                  ],
+                  bottom: PreferredSize(
+                    preferredSize: const Size.fromHeight(1.0),
+                    child: Container(color: Colors.grey.shade200, height: 1.0),
                   ),
                 ),
-              ],
-            ),
-            actions: [
-              _GlobalSearchButton(
-                onPressed: () => GlobalSearchDialog.show(context),
+                body: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    CrmSidebar(currentLocation: currentLocation),
+                    Expanded(child: child),
+                  ],
+                ),
+              );
+            }
+
+            // 2. Mobile (maxWidth < 800): Content in body, AppBar with hamburger menu, drawer
+            return Scaffold(
+              backgroundColor: const Color(0xFFF8FAFC),
+              appBar: AppBar(
+                toolbarHeight: 56,
+                backgroundColor: Colors.white,
+                elevation: 0,
+                surfaceTintColor: Colors.transparent,
+                centerTitle: false,
+                titleSpacing: 0,
+                leading: const DrawerButton(color: slateDark),
+                title: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.flight_takeoff_rounded,
+                      color: primaryTeal,
+                      size: 24,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Kite CRM',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: slateDark,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                  ],
+                ),
+                actions: [
+                  _GlobalSearchButton(
+                    compact: true,
+                    onPressed: () => GlobalSearchDialog.show(context),
+                  ),
+                  const SizedBox(width: 8),
+                  const Padding(
+                    padding: EdgeInsets.only(right: 12.0),
+                    child: UserAvatarButton(),
+                  ),
+                ],
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(1.0),
+                  child: Container(color: Colors.grey.shade200, height: 1.0),
+                ),
               ),
-              const SizedBox(width: 8),
-              const Padding(
-                padding: EdgeInsets.only(right: 12.0),
-                child: UserAvatarButton(),
+              drawer: CrmSidebar(
+                currentLocation: currentLocation,
+                isDrawer: true,
               ),
-            ],
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(1.0),
-              child: Container(color: Colors.grey.shade200, height: 1.0),
-            ),
-          ),
-          body: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CrmSidebar(currentLocation: currentLocation),
-              Expanded(child: child),
-            ],
-          ),
+              body: child,
+            );
+          },
         ),
       ),
     );
@@ -87,12 +150,28 @@ class MainLayout extends ConsumerWidget {
 }
 
 class _GlobalSearchButton extends StatelessWidget {
-  const _GlobalSearchButton({required this.onPressed});
+  const _GlobalSearchButton({
+    required this.onPressed,
+    this.compact = false,
+  });
 
   final VoidCallback onPressed;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
+    if (compact) {
+      return IconButton(
+        tooltip: 'Search (Ctrl+K)',
+        icon: Icon(
+          Icons.search_rounded,
+          size: 20,
+          color: Colors.grey.shade700,
+        ),
+        onPressed: onPressed,
+      );
+    }
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -100,7 +179,10 @@ class _GlobalSearchButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         child: Container(
           height: 36,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 6,
+          ),
           decoration: BoxDecoration(
             color: const Color(0xFFF1F5F9),
             borderRadius: BorderRadius.circular(20),
@@ -123,24 +205,26 @@ class _GlobalSearchButton extends StatelessWidget {
                   color: Colors.grey.shade600,
                 ),
               ),
-              const SizedBox(width: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFFCBD5E1)),
-                ),
-                child: Text(
-                  'Ctrl+K',
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey.shade700,
-                    letterSpacing: 0.2,
+              if (!compact) ...[
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                  ),
+                  child: Text(
+                    'Ctrl+K',
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade700,
+                      letterSpacing: 0.2,
+                    ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

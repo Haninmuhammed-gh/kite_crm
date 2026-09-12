@@ -134,6 +134,8 @@ class CompanyCard extends ConsumerWidget {
                     children: [
                       Text(
                         company.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -153,6 +155,8 @@ class CompanyCard extends ConsumerWidget {
                           ),
                           child: Text(
                             company.industry!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -248,16 +252,20 @@ class CompanyCard extends ConsumerWidget {
                           color: Colors.grey.shade600,
                         ),
                         const SizedBox(width: 6),
-                        Text(
-                          company.website!,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            color: primaryColor,
-                            fontWeight: FontWeight.w500,
-                            decoration: TextDecoration.underline,
-                            decorationColor: primaryColor.withValues(alpha: 0.4),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 180),
+                          child: Text(
+                            company.website!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: primaryColor,
+                              fontWeight: FontWeight.w500,
+                              decoration: TextDecoration.underline,
+                              decorationColor: primaryColor.withValues(alpha: 0.4),
+                            ),
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -271,12 +279,17 @@ class CompanyCard extends ConsumerWidget {
                           color: Colors.grey.shade600,
                         ),
                         const SizedBox(width: 6),
-                        Text(
-                          company.phone!,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            color: Colors.grey.shade700,
-                            fontWeight: FontWeight.w500,
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 140),
+                          child: Text(
+                            company.phone!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],

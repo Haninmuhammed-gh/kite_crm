@@ -156,6 +156,8 @@ class _CardBody extends StatelessWidget {
                 Expanded(
                   child: Text(
                     deal.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 14.5,
                       fontWeight: FontWeight.bold,
@@ -270,6 +272,8 @@ class _CardBody extends StatelessWidget {
                   ),
                   child: Text(
                     formattedValue,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -285,6 +289,8 @@ class _CardBody extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         DateFormat('MMM d').format(deal.expectedCloseDate!),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 11.5,
                           color: Colors.grey.shade600,
@@ -309,12 +315,17 @@ class _CardBody extends StatelessWidget {
                       size: 14,
                       color: Color(0xFF475569),
                     ),
-                    label: Text(
-                      deal.contactName!,
-                      style: const TextStyle(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF334155),
+                    label: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 140),
+                      child: Text(
+                        deal.contactName!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF334155),
+                        ),
                       ),
                     ),
                     visualDensity: VisualDensity.compact,
@@ -333,12 +344,17 @@ class _CardBody extends StatelessWidget {
                       size: 13,
                       color: Color(0xFF0F766E),
                     ),
-                    label: Text(
-                      companyName,
-                      style: const TextStyle(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF0F766E),
+                    label: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 140),
+                      child: Text(
+                        companyName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF0F766E),
+                        ),
                       ),
                     ),
                     visualDensity: VisualDensity.compact,

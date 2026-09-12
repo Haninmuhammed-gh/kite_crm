@@ -301,8 +301,15 @@ void main() {
   });
 
   group('MainLayout shell tests', () {
-    testWidgets('Renders global AppBar with Kite CRM brand and embedded child',
+    testWidgets('Renders global AppBar with Kite CRM brand and embedded child on desktop (>= 800px)',
         (tester) async {
+      tester.view.physicalSize = const Size(1024, 768);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -332,13 +339,145 @@ void main() {
       expect(find.text('Search...'), findsOneWidget);
       expect(find.text('Ctrl+K'), findsOneWidget);
 
-      // Verify sidebar is present
+      // Verify sidebar is present permanently on desktop
       expect(find.byType(CrmSidebar), findsOneWidget);
       expect(find.text('Dashboard'), findsOneWidget);
       expect(find.text('Contacts'), findsOneWidget);
 
+      // Verify no hamburger menu on desktop
+      expect(find.byType(DrawerButton), findsNothing);
+
       // Verify child body is present
       expect(find.text('Main Content Area'), findsOneWidget);
+    });
+
+    testWidgets(
+        'Renders mobile layout (< 800px) with hamburger menu, drawer, and full-width body',
+        (tester) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentUserProfileProvider.overrideWith(
+              (ref) async => const UserProfile(
+                id: 'u-1',
+                fullName: 'Tony Stark',
+                email: 'tony@stark.com',
+                role: 'admin',
+              ),
+            ),
+          ],
+          child: const MaterialApp(
+            home: MainLayout(
+              currentLocation: '/dashboard',
+              child: Scaffold(
+                body: Text('Main Content Area'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Verify hamburger menu button is present in AppBar
+      expect(find.byType(DrawerButton), findsOneWidget);
+
+      // Verify Scaffold has a drawer attached
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
+      expect(scaffold.drawer, isNotNull);
+
+      // Before opening drawer, sidebar navigation items are not in the active viewport
+      expect(find.text('Main Content Area'), findsOneWidget);
+
+      // Tap hamburger menu to open drawer
+      await tester.tap(find.byType(DrawerButton));
+      await tester.pumpAndSettle();
+
+      // Drawer is opened, CrmSidebar is visible with labels
+      expect(find.byType(Drawer), findsOneWidget);
+      expect(find.byType(CrmSidebar), findsOneWidget);
+      expect(find.text('Dashboard'), findsOneWidget);
+      expect(find.text('Contacts'), findsOneWidget);
+      expect(find.text('Pipeline'), findsOneWidget);
+    });
+
+    testWidgets('Tapping drawer navigation item navigates and dismisses drawer on mobile',
+        (tester) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      String? currentPath;
+
+      final router = GoRouter(
+        initialLocation: '/dashboard',
+        routes: [
+          GoRoute(
+            path: '/dashboard',
+            builder: (context, state) {
+              currentPath = state.matchedLocation;
+              return const MainLayout(
+                currentLocation: '/dashboard',
+                child: Scaffold(body: Text('Dashboard Screen')),
+              );
+            },
+          ),
+          GoRoute(
+            path: '/contacts',
+            builder: (context, state) {
+              currentPath = state.matchedLocation;
+              return const MainLayout(
+                currentLocation: '/contacts',
+                child: Scaffold(body: Text('Contacts Screen')),
+              );
+            },
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentUserProfileProvider.overrideWith(
+              (ref) async => const UserProfile(
+                id: 'u-1',
+                fullName: 'Tony Stark',
+                email: 'tony@stark.com',
+                role: 'admin',
+              ),
+            ),
+          ],
+          child: MaterialApp.router(
+            routerConfig: router,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(currentPath, '/dashboard');
+
+      // Open drawer
+      await tester.tap(find.byType(DrawerButton));
+      await tester.pumpAndSettle();
+
+      // Tap Contacts in drawer
+      await tester.tap(find.text('Contacts'));
+      await tester.pumpAndSettle();
+
+      // Verifies navigation occurred
+      expect(currentPath, '/contacts');
+
+      // Verifies drawer closed after navigation
+      expect(find.byType(Drawer), findsNothing);
     });
   });
 }

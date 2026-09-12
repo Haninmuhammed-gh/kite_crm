@@ -176,12 +176,13 @@ class RecentDealsList extends StatelessWidget {
                               children: [
                                 Text(
                                   deal.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                     color: Color(0xFF0F172A),
                                   ),
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 2),
                                 Row(
@@ -195,11 +196,12 @@ class RecentDealsList extends StatelessWidget {
                                     Expanded(
                                       child: Text(
                                         deal.contactName ?? 'Independent deal',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey.shade600,
                                         ),
-                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
@@ -219,6 +221,8 @@ class RecentDealsList extends StatelessWidget {
                             ),
                             child: Text(
                               DealCard.stageLabel(deal.stage),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -231,6 +235,8 @@ class RecentDealsList extends StatelessWidget {
                           // Value
                           Text(
                             currencyFormatter.format(deal.value),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,

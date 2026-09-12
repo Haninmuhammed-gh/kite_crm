@@ -182,6 +182,8 @@ class _KpiMiniCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 12.5,
                           color: Colors.grey.shade500,
@@ -191,6 +193,8 @@ class _KpiMiniCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         value,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
