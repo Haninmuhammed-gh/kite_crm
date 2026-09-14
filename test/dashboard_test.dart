@@ -104,7 +104,7 @@ void main() {
       expect(find.text('Active Leads'), findsOneWidget);
       expect(find.text('1'), findsWidgets); // 1 active lead, 1 won deal
       expect(find.text('Pipeline Value'), findsOneWidget);
-      expect(find.text('\$60,000'), findsWidgets);
+      expect(find.text('₹60,000'), findsWidgets);
       expect(find.text('Won Deals'), findsOneWidget);
       expect(find.text('Conversion Rate'), findsOneWidget);
       expect(find.text('100.0%'), findsOneWidget); // 1 / 1 * 100

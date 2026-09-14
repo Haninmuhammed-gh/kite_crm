@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:kite_crm/core/utils/currency_formatter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../analytics/presentation/widgets/pipeline_bar_chart.dart';
@@ -28,7 +29,6 @@ class DashboardScreen extends ConsumerWidget {
 
     final primaryColor = Theme.of(context).colorScheme.primary;
     final metrics = ref.watch(dashboardMetricsControllerProvider);
-    final currencyFormatter = NumberFormat.simpleCurrency(decimalDigits: 0);
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -156,8 +156,8 @@ class DashboardScreen extends ConsumerWidget {
                         ),
                         _StatCard(
                           title: 'Pipeline Value',
-                          value: currencyFormatter.format(metrics.pipelineValue),
-                          icon: Icons.attach_money_rounded,
+                          value: CurrencyFormatter.format(metrics.pipelineValue),
+                          icon: Icons.currency_rupee_rounded,
                           accentColor: const Color(0xFF10B981),
                           isLoading: metrics.isLoading,
                           onTap: () => context.push('/deals'),

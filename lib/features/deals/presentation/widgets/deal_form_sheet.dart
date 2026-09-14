@@ -268,9 +268,9 @@ class _DealFormSheetState extends ConsumerState<DealFormSheet> {
                       decimal: true),
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
-                    labelText: 'Deal Value (\$) *',
+                    labelText: 'Deal Value (₹) *',
                     hintText: 'e.g. 25000',
-                    prefixIcon: Icon(Icons.attach_money_rounded, size: 20),
+                    prefixIcon: Icon(Icons.currency_rupee_rounded, size: 20),
                   ),
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) {

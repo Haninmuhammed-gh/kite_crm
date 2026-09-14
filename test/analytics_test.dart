@@ -206,7 +206,7 @@ void main() {
 
       expect(find.text('Pipeline Revenue by Stage'), findsOneWidget);
       expect(find.byType(BarChart), findsOneWidget);
-      expect(find.text('\$110,000'), findsOneWidget);
+      expect(find.text('₹110,000'), findsOneWidget);
       expect(find.text('Lead'), findsOneWidget);
       expect(find.text('Won'), findsOneWidget);
     });

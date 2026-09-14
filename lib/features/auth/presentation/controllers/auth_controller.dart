@@ -2,15 +2,64 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../companies/presentation/controllers/companies_controller.dart';
+import '../../../contacts/presentation/controllers/contacts_controller.dart';
+import '../../../dashboard/presentation/controllers/dashboard_metrics_controller.dart';
+import '../../../deals/presentation/controllers/deals_controller.dart';
+import '../../../tasks/presentation/controllers/tasks_controller.dart';
 import '../../data/auth_repository.dart';
 import '../../domain/user_profile.dart';
+
+/// Explicitly invalidates all primary data-fetching providers, search queries,
+/// filter states, and memory caches across the app to prevent cross-account state leakage.
+void invalidateAllUserData(Ref ref) {
+  ref.invalidate(currentUserProfileProvider);
+  ref.invalidate(teamProfilesProvider);
+  ref.invalidate(usersDirectoryControllerProvider);
+  ref.invalidate(contactsControllerProvider);
+  ref.invalidate(searchQueryProvider);
+  ref.invalidate(companiesControllerProvider);
+  ref.invalidate(companySearchQueryProvider);
+  ref.invalidate(companyIndustryFilterProvider);
+  ref.invalidate(companiesProvider);
+  ref.invalidate(dealsControllerProvider);
+  ref.invalidate(tasksControllerProvider);
+  ref.invalidate(taskSearchQueryProvider);
+  ref.invalidate(taskStatusFilterProvider);
+  ref.invalidate(dashboardMetricsControllerProvider);
+}
+
+/// Helper for container-level invalidation (useful in tests and global hooks).
+void invalidateAllUserDataWithContainer(ProviderContainer container) {
+  container.invalidate(currentUserProfileProvider);
+  container.invalidate(teamProfilesProvider);
+  container.invalidate(usersDirectoryControllerProvider);
+  container.invalidate(contactsControllerProvider);
+  container.invalidate(searchQueryProvider);
+  container.invalidate(companiesControllerProvider);
+  container.invalidate(companySearchQueryProvider);
+  container.invalidate(companyIndustryFilterProvider);
+  container.invalidate(companiesProvider);
+  container.invalidate(dealsControllerProvider);
+  container.invalidate(tasksControllerProvider);
+  container.invalidate(taskSearchQueryProvider);
+  container.invalidate(taskStatusFilterProvider);
+  container.invalidate(dashboardMetricsControllerProvider);
+}
 
 final authControllerProvider =
     NotifierProvider<AuthController, AsyncValue<void>>(AuthController.new);
 
-/// Automatically refetches profile whenever auth state changes (login/logout/refresh)
+/// Automatically refetches profile and cleans up state whenever auth state changes (login/logout/refresh)
 final authStateStreamProvider = StreamProvider<void>((ref) {
-  return ref.watch(authRepositoryProvider).onAuthStateChange.map((_) {});
+  final stream = ref.watch(authRepositoryProvider).onAuthStateChange;
+  final sub = stream.listen((authState) {
+    if (authState.event == AuthChangeEvent.signedOut) {
+      invalidateAllUserData(ref);
+    }
+  });
+  ref.onDispose(sub.cancel);
+  return stream.map((_) {});
 });
 
 /// Fetches the current user's profile from `profiles` table
@@ -47,6 +96,7 @@ final currentUserIdProvider = Provider<String?>((ref) {
 
 /// Fetches all profiles in the organization (for admin assignment)
 final teamProfilesProvider = FutureProvider<List<UserProfile>>((ref) async {
+  ref.watch(currentUserIdProvider);
   return await ref.watch(authRepositoryProvider).fetchTeamProfiles();
 });
 
@@ -66,7 +116,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
             email: email,
             password: password,
           );
-      ref.invalidate(currentUserProfileProvider);
+      invalidateAllUserData(ref);
     });
   }
 
@@ -83,7 +133,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
             password: password,
             fullName: fullName,
           );
-      ref.invalidate(currentUserProfileProvider);
+      invalidateAllUserData(ref);
     });
     return res;
   }
@@ -92,7 +142,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await ref.read(authRepositoryProvider).signOut();
-      ref.invalidate(currentUserProfileProvider);
+      invalidateAllUserData(ref);
     });
   }
 
@@ -139,6 +189,7 @@ final usersDirectoryControllerProvider =
 class UsersDirectoryController extends AsyncNotifier<List<UserProfile>> {
   @override
   Future<List<UserProfile>> build() async {
+    ref.watch(currentUserIdProvider);
     return await ref.watch(authRepositoryProvider).fetchAllProfiles();
   }
 

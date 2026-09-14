@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../data/deal_repository.dart';
 import '../../domain/deal.dart';
 
@@ -55,6 +56,7 @@ final dealsByContactProvider =
 class DealsController extends Notifier<AsyncValue<List<Deal>>> {
   @override
   AsyncValue<List<Deal>> build() {
+    ref.watch(currentUserIdProvider);
     _fetchDeals();
     return const AsyncValue.loading();
   }

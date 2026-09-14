@@ -169,7 +169,7 @@ void main() {
       );
 
       expect(find.text('Acme Annual Plan'), findsOneWidget);
-      expect(find.text('\$48,000'), findsOneWidget);
+      expect(find.text('₹48,000'), findsOneWidget);
       expect(find.text('Clark Kent'), findsOneWidget);
     });
 
@@ -203,7 +203,7 @@ void main() {
       );
 
       expect(find.text('Enterprise Server Migration'), findsOneWidget);
-      expect(find.text('\$95,000'), findsOneWidget);
+      expect(find.text('₹95,000'), findsOneWidget);
       expect(find.text('Tony Stark'), findsOneWidget);
       expect(find.text('Stark Industries'), findsOneWidget);
     });
@@ -242,7 +242,7 @@ void main() {
 
       expect(find.text('Deals Pipeline'), findsOneWidget);
       expect(find.text('Total Pipeline: '), findsOneWidget);
-      expect(find.text('\$35,000'), findsOneWidget); // 5000 + 30000
+      expect(find.text('₹35,000'), findsOneWidget); // 5000 + 30000
       expect(find.text('Lead / Discovery'), findsOneWidget);
       expect(find.text('Demo / Pitch'), findsOneWidget);
       expect(find.text('Negotiation'), findsOneWidget);

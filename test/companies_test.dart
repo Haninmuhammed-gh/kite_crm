@@ -310,7 +310,7 @@ void main() {
       // Verify Active Deals section
       expect(find.text('Active Deals'), findsOneWidget);
       expect(find.text('Arc Reactor Supply Contract'), findsOneWidget);
-      expect(find.text('\$1,200,000'), findsOneWidget);
+      expect(find.text('₹1,200,000'), findsOneWidget);
       expect(find.text('Add Deal'), findsOneWidget);
     });
 

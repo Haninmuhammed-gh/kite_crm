@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:kite_crm/core/utils/currency_formatter.dart';
 import '../../domain/deal.dart';
 import '../controllers/deals_controller.dart';
 import 'deal_card.dart';
@@ -23,7 +24,6 @@ class DealColumn extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currencyFormatter = NumberFormat.simpleCurrency(decimalDigits: 0);
     final totalValue = deals.fold<double>(0.0, (sum, d) => sum + d.value);
 
     return Container(
@@ -110,7 +110,7 @@ class DealColumn extends ConsumerWidget {
 
                 // Total stage value
                 Text(
-                  currencyFormatter.format(totalValue),
+                  CurrencyFormatter.format(totalValue),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,

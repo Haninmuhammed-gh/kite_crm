@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:kite_crm/core/utils/currency_formatter.dart';
 import '../controllers/analytics_controller.dart';
 
 class PipelineBarChart extends ConsumerStatefulWidget {
@@ -23,19 +24,12 @@ class _PipelineBarChartState extends ConsumerState<PipelineBarChart> {
   int? _touchedIndex;
 
   String _formatCompact(double value) {
-    if (value >= 1000000) {
-      return '\$${(value / 1000000).toStringAsFixed(1)}M';
-    } else if (value >= 1000) {
-      return '\$${(value / 1000).toStringAsFixed(0)}k';
-    } else {
-      return '\$${value.toStringAsFixed(0)}';
-    }
+    return CurrencyFormatter.formatCompact(value);
   }
 
   @override
   Widget build(BuildContext context) {
     final stageDataAsync = ref.watch(dealsByStageChartProvider);
-    final currencyFormatter = NumberFormat.simpleCurrency(decimalDigits: 0);
     final isMobile = MediaQuery.sizeOf(context).width < 800;
 
     return stageDataAsync.when(
@@ -159,7 +153,7 @@ class _PipelineBarChartState extends ConsumerState<PipelineBarChart> {
                         ),
                         children: [
                           TextSpan(
-                            text: currencyFormatter.format(item.totalValue),
+                            text: CurrencyFormatter.format(item.totalValue),
                             style: const TextStyle(
                               color: Color(0xFF34D399), // Emerald 400
                               fontWeight: FontWeight.w700,
@@ -288,8 +282,6 @@ class _PipelineBarChartState extends ConsumerState<PipelineBarChart> {
   }) {
     if (!widget.showCardWrapper) return child;
 
-    final currencyFormatter = NumberFormat.simpleCurrency(decimalDigits: 0);
-
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -355,7 +347,7 @@ class _PipelineBarChartState extends ConsumerState<PipelineBarChart> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          currencyFormatter.format(totalValue),
+                          CurrencyFormatter.format(totalValue),
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,

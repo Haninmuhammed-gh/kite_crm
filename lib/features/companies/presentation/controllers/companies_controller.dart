@@ -116,6 +116,7 @@ final companyStatsProvider = Provider<CompanyStats>((ref) {
 class CompaniesController extends Notifier<AsyncValue<List<Company>>> {
   @override
   AsyncValue<List<Company>> build() {
+    ref.watch(currentUserIdProvider);
     _fetchCompanies();
     return const AsyncValue.loading();
   }

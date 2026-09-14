@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../deals/presentation/controllers/deals_controller.dart';
 import '../../../tasks/presentation/controllers/tasks_controller.dart';
 import '../../data/contact_repository.dart';
@@ -62,6 +63,7 @@ final qualifiedLeadsProvider = Provider<AsyncValue<List<Contact>>>((ref) {
 });
 
 final companiesProvider = FutureProvider<List<Company>>((ref) async {
+  ref.watch(currentUserIdProvider);
   return await ref.read(contactRepositoryProvider).fetchCompanies();
 });
 
@@ -82,6 +84,7 @@ final contactDetailProvider =
 class ContactsController extends Notifier<AsyncValue<List<Contact>>> {
   @override
   AsyncValue<List<Contact>> build() {
+    ref.watch(currentUserIdProvider);
     _fetchContacts();
     return const AsyncValue.loading();
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:kite_crm/core/utils/currency_formatter.dart';
 import '../../../deals/domain/deal.dart';
 import '../../../deals/presentation/widgets/deal_card.dart';
 import '../../../deals/presentation/widgets/deal_form_sheet.dart';
@@ -34,8 +35,6 @@ class RecentDealsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormatter = NumberFormat.simpleCurrency(decimalDigits: 0);
-
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -234,7 +233,7 @@ class RecentDealsList extends StatelessWidget {
 
                           // Value
                           Text(
-                            currencyFormatter.format(deal.value),
+                            CurrencyFormatter.format(deal.value),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(

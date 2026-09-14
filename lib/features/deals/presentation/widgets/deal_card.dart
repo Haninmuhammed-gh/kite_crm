@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:kite_crm/core/utils/currency_formatter.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../contacts/presentation/widgets/contact_form_sheet.dart';
 import '../../domain/deal.dart';
@@ -66,8 +67,7 @@ class DealCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currencyFormatter = NumberFormat.simpleCurrency(decimalDigits: 0);
-    final formattedValue = currencyFormatter.format(deal.value);
+    final formattedValue = CurrencyFormatter.format(deal.value);
     final isAdmin = ref.watch(isAdminProvider);
     final currentUserId = ref.watch(currentUserIdProvider);
     final canEdit = isAdmin || (deal.assignedTo != null && deal.assignedTo == currentUserId);

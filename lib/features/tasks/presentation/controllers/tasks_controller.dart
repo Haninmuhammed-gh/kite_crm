@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../data/task_repository.dart';
 import '../../domain/task.dart';
 
@@ -124,6 +125,7 @@ final taskByIdProvider =
 class TasksController extends Notifier<AsyncValue<List<Task>>> {
   @override
   AsyncValue<List<Task>> build() {
+    ref.watch(currentUserIdProvider);
     _fetchTasks();
     return const AsyncValue.loading();
   }

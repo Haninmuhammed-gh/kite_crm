@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kite_crm/core/utils/currency_formatter.dart';
+import 'package:kite_crm/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:kite_crm/features/companies/data/company_repository.dart';
 import 'package:kite_crm/features/companies/domain/company.dart';
 import 'package:kite_crm/features/companies/presentation/controllers/companies_controller.dart';
@@ -342,6 +344,13 @@ class _FakeTaskRepository implements TaskRepository {
   }
 }
 
+class _TestUserIdNotifier extends Notifier<String?> {
+  @override
+  String? build() => 'user_alpha';
+
+  void setUserId(String? id) => state = id;
+}
+
 void main() {
   group('Global state invalidation tests', () {
     late _FakeCompanyRepository fakeCompaniesRepo;
@@ -520,6 +529,114 @@ void main() {
       expect(fakeTasksRepo.fetchCount, 4);
 
       taskSub.close();
+    });
+
+    test('invalidateAllUserDataWithContainer invalidates all primary controllers and resets search/filter states', () async {
+      final compSub = container.listen(companiesControllerProvider, (_, _) {});
+      final contactSub = container.listen(contactsControllerProvider, (_, _) {});
+      final dealSub = container.listen(dealsControllerProvider, (_, _) {});
+      final taskSub = container.listen(tasksControllerProvider, (_, _) {});
+
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(fakeCompaniesRepo.fetchCount, 1);
+      expect(fakeContactsRepo.fetchCount, 1);
+      expect(fakeDealsRepo.fetchCount, 1);
+      expect(fakeTasksRepo.fetchCount, 1);
+
+      // Mutate search and filter states
+      container.read(searchQueryProvider.notifier).setQuery('Bruce');
+      container.read(companySearchQueryProvider.notifier).setQuery('Wayne');
+      container.read(companyIndustryFilterProvider.notifier).setFilter('Finance');
+      container.read(taskSearchQueryProvider.notifier).setQuery('Review');
+      container.read(taskStatusFilterProvider.notifier).setFilter('pending');
+
+      expect(container.read(searchQueryProvider), 'Bruce');
+      expect(container.read(companySearchQueryProvider), 'Wayne');
+      expect(container.read(companyIndustryFilterProvider), 'Finance');
+      expect(container.read(taskSearchQueryProvider), 'Review');
+      expect(container.read(taskStatusFilterProvider), 'pending');
+
+      // Trigger logout invalidation
+      invalidateAllUserDataWithContainer(container);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      // Controllers should have re-executed build
+      expect(fakeCompaniesRepo.fetchCount, 2);
+      expect(fakeContactsRepo.fetchCount, 2);
+      expect(fakeDealsRepo.fetchCount, 2);
+      expect(fakeTasksRepo.fetchCount, 2);
+
+      // Search & filter states should be cleanly reset
+      expect(container.read(searchQueryProvider), '');
+      expect(container.read(companySearchQueryProvider), '');
+      expect(container.read(companyIndustryFilterProvider), 'all');
+      expect(container.read(taskSearchQueryProvider), '');
+      expect(container.read(taskStatusFilterProvider), 'all');
+
+      compSub.close();
+      contactSub.close();
+      dealSub.close();
+      taskSub.close();
+    });
+
+    test('Switching currentUserIdProvider automatically invalidates and refetches data for new user session', () async {
+      final testUserIdNotifier = _TestUserIdNotifier();
+      final testUserIdProvider =
+          NotifierProvider<_TestUserIdNotifier, String?>(() => testUserIdNotifier);
+
+      final sessionContainer = ProviderContainer(
+        overrides: [
+          currentUserIdProvider.overrideWith((ref) => ref.watch(testUserIdProvider)),
+          companyRepositoryProvider.overrideWithValue(fakeCompaniesRepo),
+          contactRepositoryProvider.overrideWithValue(fakeContactsRepo),
+          dealRepositoryProvider.overrideWithValue(fakeDealsRepo),
+          taskRepositoryProvider.overrideWithValue(fakeTasksRepo),
+        ],
+      );
+      addTearDown(sessionContainer.dispose);
+
+      final compSub = sessionContainer.listen(companiesControllerProvider, (_, _) {});
+      final contactSub = sessionContainer.listen(contactsControllerProvider, (_, _) {});
+      final dealSub = sessionContainer.listen(dealsControllerProvider, (_, _) {});
+      final taskSub = sessionContainer.listen(tasksControllerProvider, (_, _) {});
+
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      final initialCompFetches = fakeCompaniesRepo.fetchCount;
+      final initialContactFetches = fakeContactsRepo.fetchCount;
+      final initialDealFetches = fakeDealsRepo.fetchCount;
+      final initialTaskFetches = fakeTasksRepo.fetchCount;
+
+      // Switch user account to user_beta without reloading web app
+      testUserIdNotifier.setUserId('user_beta');
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      // All controllers watching currentUserIdProvider must automatically re-fetch
+      expect(fakeCompaniesRepo.fetchCount, initialCompFetches + 1);
+      expect(fakeContactsRepo.fetchCount, initialContactFetches + 1);
+      expect(fakeDealsRepo.fetchCount, initialDealFetches + 1);
+      expect(fakeTasksRepo.fetchCount, initialTaskFetches + 1);
+
+      compSub.close();
+      contactSub.close();
+      dealSub.close();
+      taskSub.close();
+    });
+  });
+
+  group('CurrencyFormatter tests', () {
+    test('CurrencyFormatter formats values cleanly with ₹ symbol (e.g., ₹93,500)', () {
+      expect(CurrencyFormatter.format(93500), '₹93,500');
+      expect(CurrencyFormatter.format(0), '₹0');
+      expect(CurrencyFormatter.format(48000), '₹48,000');
+      expect(CurrencyFormatter.format(95000), '₹95,000');
+      expect(CurrencyFormatter.format(1200000), '₹1,200,000');
+    });
+
+    test('CurrencyFormatter formats compact amounts with ₹ symbol', () {
+      expect(CurrencyFormatter.formatCompact(500), '₹500');
+      expect(CurrencyFormatter.formatCompact(25000), '₹25k');
+      expect(CurrencyFormatter.formatCompact(1500000), '₹1.5M');
     });
   });
 }

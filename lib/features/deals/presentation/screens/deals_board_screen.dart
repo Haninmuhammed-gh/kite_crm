@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:kite_crm/core/utils/currency_formatter.dart';
 import '../controllers/deals_controller.dart';
 import '../widgets/deal_column.dart';
 import '../widgets/deal_form_sheet.dart';
@@ -39,7 +40,6 @@ class DealsBoardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dealsAsync = ref.watch(dealsControllerProvider);
-    final currencyFormatter = NumberFormat.simpleCurrency(decimalDigits: 0);
 
     return Scaffold(
       body: dealsAsync.when(
@@ -94,7 +94,7 @@ class DealsBoardScreen extends ConsumerWidget {
                     children: [
                       _MetricItem(
                         label: 'Total Pipeline',
-                        value: currencyFormatter.format(totalPipeline),
+                        value: CurrencyFormatter.format(totalPipeline),
                         color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: 24),
@@ -106,7 +106,7 @@ class DealsBoardScreen extends ConsumerWidget {
                       const SizedBox(width: 24),
                       _MetricItem(
                         label: 'Closed Won',
-                        value: currencyFormatter.format(wonDeals),
+                        value: CurrencyFormatter.format(wonDeals),
                         color: const Color(0xFF059669),
                       ),
                       const SizedBox(width: 24),

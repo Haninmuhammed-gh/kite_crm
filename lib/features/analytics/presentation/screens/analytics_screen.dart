@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:kite_crm/core/utils/currency_formatter.dart';
 import '../../../companies/presentation/controllers/companies_controller.dart';
 import '../../../deals/presentation/controllers/deals_controller.dart';
 import '../../../tasks/presentation/controllers/tasks_controller.dart';
@@ -15,7 +16,6 @@ class AnalyticsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currencyFormatter = NumberFormat.simpleCurrency(decimalDigits: 0);
     final totalPipeline = ref.watch(totalPipelineValueProvider);
     final companiesAsync = ref.watch(companiesControllerProvider);
     final taskStatsAsync = ref.watch(taskCompletionStatsProvider);
@@ -81,8 +81,8 @@ class AnalyticsScreen extends ConsumerWidget {
                               ? constraints.maxWidth
                               : (constraints.maxWidth - 28) / 3,
                           title: 'Total Pipeline',
-                          value: currencyFormatter.format(totalPipeline),
-                          icon: Icons.monetization_on_outlined,
+                          value: CurrencyFormatter.format(totalPipeline),
+                          icon: Icons.currency_rupee_rounded,
                           color: const Color(0xFF0F766E), // Deep Teal
                           onTap: () => context.go('/deals'),
                         ),
